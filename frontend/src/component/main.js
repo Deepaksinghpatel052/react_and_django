@@ -1,7 +1,13 @@
 import React, { Component } from "react";
 
 import TodoApp from "./pagination";
-import { Route, HashRouter, NavLink } from "react-router-dom";
+import {
+  BrowserRouter,
+  Route,
+  Switch,
+  HashRouter,
+  NavLink
+} from "react-router-dom";
 import CampaignPart2 from "./campaignpart2";
 import ReviewGenerationCampaign from "./review-generation-campaign";
 import ReviewTracking from "./review-tracking";
@@ -22,9 +28,13 @@ import LocationManager from "./location-manager";
 import ProfileAnalytics from "./profile-analytics";
 import ViewListing from "./view-listing";
 import Overview from "./overview";
-import PromotioalGenerationStats from "./promotional-generation-stats";
+import ReviewGenerationStats from "./review-generation-stats";
 import AddLocation from "./add-location";
-// import ConnectedAccounts from "./connectedaccounts";
+import ConnectedAccounts from "./connectedaccounts";
+import GoogleConnectedAccounts from "./google-connectedaccounts";
+import HereRelatedLocation from "./here-related-location";
+import TomtomRelatedLocation from "./tomtom-related-location";
+import PageNotFound from "./page-not-found";
 
 export default class MainApp extends Component {
   render() {
@@ -33,10 +43,8 @@ export default class MainApp extends Component {
     return (
       <div>
         <Topbarmenu />
-	<SideBar />
+        <SideBar />
         <HashRouter>
-          
-
           <div className="content-page">
             <div className="container-fluid">
               <div className="row">
@@ -143,8 +151,19 @@ export default class MainApp extends Component {
                               Tracking
                             </NavLink>
                           </li>
-                          <li>
+                          {/* <li>
                             <NavLink to="/b">Wedgets</NavLink>
+                          </li> */}
+                          <li>
+                            <NavLink
+                              to={
+                                "/locations/" +
+                                localStorage.getItem("locationId") +
+                                "/review-generation-stats"
+                              }
+                            >
+                              Review Generation Stats
+                            </NavLink>
                           </li>
                         </ul>
                       </li>
@@ -221,17 +240,6 @@ export default class MainApp extends Component {
                               Promotional Post
                             </NavLink>
                           </li>
-                          <li>
-                            <NavLink
-                              to={
-                                "/locations/" +
-                                localStorage.getItem("locationId") +
-                                "/promotional-generation-stats"
-                              }
-                            >
-                              Promotional Generation Stats
-                            </NavLink>
-                          </li>
                         </ul>
                       </li>
                     </ul>
@@ -246,83 +254,109 @@ export default class MainApp extends Component {
                 path="/pagination"
                 render={props => <TodoApp {...props} />}
               /> */}
-              <Route
-                exact
-                path="/locations/:locationId/overview"
-                render={props => <Overview {...props} />}
-              />
-              <Route exact path="/campaignpart2" component={CampaignPart2} />
-              <Route
-                exact
-                path="/locations/:locationId/review-generation-campaign"
-                render={props => <ReviewGenerationCampaign {...props} />}
-              />
-              <Route
-                exact
-                path="/locations/:locationId/review-tracking"
-                render={props => <ReviewTracking {...props} />}
-              />
-              <Route exact path="/" component={LocationManager} />
-              <Route
-                exact
-                path="/locations/:locationId/view-listing"
-                render={props => <ViewListing {...props} />}
-              />
-              <Route
-                exact
-                path="/locations/:locationId/voice-listing"
-                render={props => <VoiceListing {...props} />}
-              />
-              <Route
-                exact
-                path="/locations/:locationId/view-location"
-                render={props => <ViewLocations {...props} />}
-              />
-              <Route
-                exact
-                path="/location-manager"
-                component={LocationManager}
-              />
+              <Switch>
+                <Route
+                  exact
+                  path="/locations/:locationId/overview"
+                  render={props => <Overview {...props} />}
+                />
+                <Route
+                  exact
+                  path="/locations/:locationId/campaignpart2"
+                  render={props => <CampaignPart2 {...props} />}
+                />
+                <Route
+                  exact
+                  path="/locations/:locationId/review-generation-campaign"
+                  render={props => <ReviewGenerationCampaign {...props} />}
+                />
+                <Route
+                  exact
+                  path="/locations/:locationId/review-tracking"
+                  render={props => <ReviewTracking {...props} />}
+                />
+                <Route exact path="/" component={LocationManager} />
+                <Route
+                  exact
+                  path="/locations/:locationId/view-listing"
+                  render={props => <ViewListing {...props} />}
+                />
+                <Route
+                  exact
+                  path="/locations/:locationId/voice-listing"
+                  render={props => <VoiceListing {...props} />}
+                />
+                <Route
+                  exact
+                  path="/locations/:locationId/view-location"
+                  render={props => <ViewLocations {...props} />}
+                />
+                <Route
+                  exact
+                  path="/location-manager"
+                  component={LocationManager}
+                />
 
-              <Route
-                exact
-                path="/locations/:locationId/review-analytics"
-                render={props => <ReviewAnalytics {...props} />}
-              />
-              <Route
-                exact
-                path="/locations/:locationId/profile-analytics"
-                render={props => <ProfileAnalytics {...props} />}
-              />
+                <Route
+                  exact
+                  path="/locations/:locationId/review-analytics"
+                  render={props => <ReviewAnalytics {...props} />}
+                />
+                <Route
+                  exact
+                  path="/locations/:locationId/profile-analytics"
+                  render={props => <ProfileAnalytics {...props} />}
+                />
 
-              <Route
-                exact
-                path="/locations/:locationId/promotional"
-                render={props => <PromotionalPost {...props} />}
-              />
-              <Route
-                exact
-                path="/promotional-sorry"
-                component={PromotionalPostSorry}
-              />
-              <Route
-                exact
-                path="/locations/:locationId/promotional-generation-stats"
-                render={props => <PromotioalGenerationStats {...props} />}
-              />
-              <Route exact path="/add-location" component={AddLocation} />
+                <Route
+                  exact
+                  path="/locations/:locationId/promotional"
+                  render={props => <PromotionalPost {...props} />}
+                />
+                <Route
+                  exact
+                  path="/promotional-sorry"
+                  component={PromotionalPostSorry}
+                />
+                <Route
+                  exact
+                  path="/locations/:locationId/review-generation-stats"
+                  render={props => <ReviewGenerationStats {...props} />}
+                />
+                <Route exact path="/add-location" component={AddLocation} />
 
-              <Route exact path="/setting-main" component={SettingMain} />
-              <Route
-                path="/setting-main/setting-accounts"
-                component={SettingAccounts}
-              />
-              <Route
-                exact
-                path="/setting-main/setting-billing"
-                component={SettingBilling}
-              />
-             {/* <Route path="/connectedaccounts" component={ConnectedAccounts} /> */}
+                <Route exact path="/setting-main" component={SettingMain} />
+                <Route
+                  path="/setting-main/setting-accounts"
+                  component={SettingAccounts}
+                />
+                <Route
+                  exact
+                  path="/setting-main/setting-billing"
+                  component={SettingBilling}
+                />
+                <Route
+                  exact
+                  path="/connectedaccounts"
+                  component={ConnectedAccounts}
+                />
+                <Route
+                  exact
+                  path="/google-connectedaccounts"
+                  component={GoogleConnectedAccounts}
+                />
+                <Route
+                  exact
+                  path="/here-related-location"
+                  component={HereRelatedLocation}
+                />
+                <Route
+                  exact
+                  path="/tomtom-related-location"
+                  component={TomtomRelatedLocation}
+                />
+                <Route path="/" component={PageNotFound} />
+              </Switch>
             </div>
           </div>
         </HashRouter>

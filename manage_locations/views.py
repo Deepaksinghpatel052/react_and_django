@@ -132,7 +132,7 @@ class GetLocationByIdView(APIView):
         if request.method == "POST":
             serializer = GetOneLocationSerializersValidate(data=request.data)
             serializer.is_valid(raise_exception=True)
-            location_seri = GetAllLocationSerializers(serializer.validated_data,context={"request":request})
+            location_seri = GetAllLocationSerializers(serializer.validated_data)
             location = location_seri.data
         return Response({"location": location}, status=200)
 
@@ -146,7 +146,7 @@ class GetAllLocationView(APIView):
             serializer = GetAllLocationSerializersValidate(data=request.data)
             serializer.is_valid(raise_exception=True)
             all_location = DfBusinessLocation.objects.filter(DfUser=serializer.validated_data).order_by("-id")
-            all_locationSerializer = GetAllLocationSerializers(all_location, many=True, context={"request":request})
+            all_locationSerializer = GetAllLocationSerializers(all_location, many=True)
             all_businessLocation = all_locationSerializer.data
         else:
             msg = "Something wae wrong with API."

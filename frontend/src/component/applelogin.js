@@ -48,8 +48,8 @@ class AppleLogin extends Component {
       headers: { Authorization: "Token " + localStorage.getItem("UserToken") }
     };
 
-    const appleId = this.state.id.split("/")[6].slice(2);
-    localStorage.setItem("appleId", appleId);
+    // const appleId = this.state.id.split("/")[6].slice(2);
+    // localStorage.setItem("appleId", appleId);
 
     const data = {
       location_id: localStorage.getItem("locationId"),
@@ -62,19 +62,44 @@ class AppleLogin extends Component {
       Other_info: "{'URL':" + this.state.id + ",'data':''}"
     };
 
-    Axios.post(
-      "https://cors-anywhere.herokuapp.com/http://203.190.153.20:8000/social-platforms/add-account",
-      data,
-      DjangoConfig
-    )
-      .then(resp => {
-        console.log("apple response", resp);
-        this.setState({ isId: true, loading: false });
-      })
-      .catch(resp => {
-        console.log("apple response", resp);
-        this.setState({ wrong: "Invalid or Not authorised", loading: false });
-      });
+    if (this.state.id.split("/")[6]) {
+      Axios.get(
+        "https://itunes.apple.com/in/rss/customerreviews/id=" +
+          this.state.id.split("/")[6].slice(2) +
+          "/sortBy=mostRecent/json"
+      )
+        .then(res => {
+          if (res.data.feed.entry) {
+            Axios.post(
+              "https://dashify.biz/social-platforms/add-account",
+              data,
+              DjangoConfig
+            )
+              .then(resp => {
+                console.log("apple response", resp);
+                this.setState({ isId: true, loading: false });
+              })
+              .catch(resp => {
+                console.log("apple response", resp);
+                alert("Invalid username or password");
+                this.setState({
+                  wrong: "Invalid or Not authorised",
+                  loading: false
+                });
+              });
+          } else {
+            alert("Invalid username or password");
+            this.setState({ loading: false });
+          }
+        })
+        .catch(resp => {
+          alert("Invalid username or password");
+          this.setState({ loading: false });
+        });
+    } else {
+      alert("Invalid username or password");
+      this.setState({ loading: false });
+    }
   };
 
   render() {

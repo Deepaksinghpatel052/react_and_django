@@ -45,7 +45,8 @@ class GetAllReviewView(APIView):
                 if get_social_platfrom is not None:
                     for item in get_social_platfrom:
                         get_all_review = DfLocationReviews.objects.filter(Df_User=get_Dfuser_ins).filter(Business_Location=location_ins).filter(Social_Plateform=item).order_by('-id')
-                        get_all_review_sri = GetReviewsSerializers(get_all_review, many=True , context={"request":request})
+                        # get_all_review_sri = GetReviewsSerializers(get_all_review, many=True , context={"request":request})
+                        get_all_review_sri = GetReviewsSerializers(get_all_review, many=True)
                         get_data = get_all_review_sri.data
                         reviews[item] = get_data
 

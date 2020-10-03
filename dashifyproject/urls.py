@@ -21,23 +21,48 @@ from accounts import views
 from django.views.generic import TemplateView
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', TemplateView.as_view(template_name="index.html")),
+    path('api/admin/', admin.site.urls),
+    # path('', TemplateView.as_view(template_name="index.html")),
 
-    path('account', include('accounts.urls')),
-    path('account/', include('accounts.urls')),
+    path('api/account', include('accounts.urls')),
+    path('api/account/', include('accounts.urls')),
 
-    path('dropdown-values', include('manage_dropdown_value.urls')),
-    path('dropdown-values/', include('manage_dropdown_value.urls')),
+    path('api/dropdown-values', include('manage_dropdown_value.urls')),
+    path('api/dropdown-values/', include('manage_dropdown_value.urls')),
 
-    path('locations', include('manage_locations.urls')),
-    path('locations/', include('manage_locations.urls')),
+    path('api/locations', include('manage_locations.urls')),
+    path('api/locations/', include('manage_locations.urls')),
 
-    path('social-platforms', include('social_media_platforms.urls')),
-    path('social-platforms/', include('social_media_platforms.urls')),
+    path('api/social-platforms', include('social_media_platforms.urls')),
+    path('api/social-platforms/', include('social_media_platforms.urls')),
 
-    path('reviews', include('reviews.urls')),
-    path('reviews/', include('reviews.urls')),  
+    path('api/voice-faq', include('manage_voice_faqs.urls')),
+    path('api/voice-faq/', include('manage_voice_faqs.urls')),
+
+    path('api/reviews', include('reviews.urls')),
+    path('api/reviews/', include('reviews.urls')),
+
+    path('api/campaign', include('manage_campus.urls')),
+    path('api/campaign/', include('manage_campus.urls')),
+
+    path('api/queryes', include('queryes.urls')),
+    path('api/queryes/', include('queryes.urls')),
+
+    path('api/bloges', include('manage_bloges.urls')),
+    path('api/bloges/', include('manage_bloges.urls')),
+
+    path('api/faqs', include('manage_faqs.urls')),
+    path('api/faqs/', include('manage_faqs.urls')),
+
+    path('api/jobs', include('manage_jobs.urls')),
+    path('api/jobs/', include('manage_jobs.urls')),
+
+    path('api/package-pricing', include('manage_pricing.urls')),
+    path('api/package-pricing/', include('manage_pricing.urls')),
+
+    path('api/order-and-payments', include('manage_orders_and_payments.urls')),
+    path('api/order-and-payments/', include('manage_orders_and_payments.urls')),
+
     re_path(r'^(?:.*)/?$', TemplateView.as_view(template_name="index.html")	)
 
 ]  + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

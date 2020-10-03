@@ -36,7 +36,7 @@ export default class ReviewGenerationCampaign extends Component {
       location_id: this.props.match.params.locationId
     };
     Axios.post(
-      "https://cors-anywhere.herokuapp.com/http://203.190.153.20:8000/locations/get-all-connection-of-one-location",
+      "https://dashify.biz/locations/get-all-connection-of-one-location",
       data,
       DjangoConfig
     ).then(response => {
@@ -180,7 +180,7 @@ export default class ReviewGenerationCampaign extends Component {
     console.log("email_sending_data", email_sending_data);
 
     Axios.post(
-      "https://cors-anywhere.herokuapp.com/http://203.190.153.20:8000/account/send_email",
+      "https://dashify.biz/account/send_email",
       email_sending_data,
       DjangoConfig
     )
@@ -426,7 +426,7 @@ export default class ReviewGenerationCampaign extends Component {
                   <div className="ratingemail">
                     <h2>
                       Ratings Email And SMS
-                      <a href="#" className="close-section">
+                      <a className="close-section">
                         <i className="zmdi zmdi-close"></i>Close Section
                       </a>
                     </h2>
@@ -529,6 +529,7 @@ export default class ReviewGenerationCampaign extends Component {
                             ) : (
                               ""
                             )}
+
                             {appleId ? (
                               <div className="col-md-5">
                                 <div className="google">
@@ -742,12 +743,32 @@ export default class ReviewGenerationCampaign extends Component {
                 </div>
 
                 <div className="btnbox_button mt-30">
-                  {/* <NavLink to="campaignpart2" className="continue">
-                  Continue
-                </NavLink> */}
-                  <button type="submit" className="continue">
+                  <NavLink
+                    to={{
+                      pathname: "campaignpart2",
+                      state: {
+                        promotional_data: {
+                          email_from,
+                          all_site_name,
+                          all_site_url,
+                          email_replyto,
+                          email_subject,
+                          email_heading,
+                          email_content,
+                          review_by_google,
+                          review_by_apple,
+                          google_placeid,
+                          appleId
+                        }
+                      }
+                    }}
+                    className="continue"
+                  >
                     Continue
-                  </button>
+                  </NavLink>
+                  {/* <button type="submit" className="continue">
+                    Continue
+                  </button> */}
                 </div>
               </div>
             </div>

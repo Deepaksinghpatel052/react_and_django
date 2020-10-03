@@ -3,6 +3,15 @@ import Loader from "react-loader-spinner";
 import { Link, Redirect } from "react-router-dom";
 import Axios from "axios";
 
+const Yelpconfig = {
+  headers: {
+    Authorization:
+      "bearer XkjWF9GSy19xRS_yytCtISMaViqsPuXGmQiTzzAdcRHHNJmISD9bnHisRb8tgF5H7xVuMnbcybxOvEHHM7o91yTFKcGO7KrERhOSMS9NtRiPQNq9tCxMl61oD10pXnYx",
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "http://localhost"
+  }
+};
+
 class YelpLogin extends Component {
   state = {
     url: "",
@@ -60,18 +69,39 @@ class YelpLogin extends Component {
       Other_info: "{'URL':" + this.state.url + ",'data':''}"
     };
 
-    Axios.post(
-      "https://cors-anywhere.herokuapp.com/http://203.190.153.20:8000/social-platforms/add-account",
-      data,
-      DjangoConfig
+    Axios.get(
+      "https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/businesses/" +
+        this.state.url.slice(25) +
+        "/reviews",
+      Yelpconfig
     )
       .then(resp => {
-        console.log(resp);
-        this.setState({ isUrl: true, loading: false });
+        if (resp.data.reviews) {
+          Axios.post(
+            "https://dashify.biz/social-platforms/add-account",
+            data,
+            DjangoConfig
+          )
+            .then(resp => {
+              console.log(resp);
+              this.setState({ isUrl: true, loading: false });
+            })
+            .catch(resp => {
+              alert("Invalid username or password");
+              console.log(resp);
+              this.setState({
+                wrong: "Invalid or Not authorised",
+                loading: false
+              });
+            });
+        } else {
+          alert("Invalid Username or password");
+          this.setState({ loading: false });
+        }
       })
       .catch(resp => {
-        console.log(resp);
-        this.setState({ wrong: "Invalid or Not authorised", loading: false });
+        alert("Invalid Username or password");
+        this.setState({ loading: false });
       });
   };
 
@@ -116,7 +146,7 @@ class YelpLogin extends Component {
                   type="text"
                   id="url"
                   value={this.state.url}
-                  placeholder="https://www.yelp.com/biz/your-business-name"
+                  placeholder="https://www.yelp.com/biz/uncle-boys-san-francisco"
                   onChange={e => this.setState({ url: e.target.value })}
                 />
                 <div style={{ color: "red" }}>{this.state.url_error}</div>

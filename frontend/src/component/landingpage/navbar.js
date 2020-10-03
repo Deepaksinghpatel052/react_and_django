@@ -1,6 +1,6 @@
 import React, { Component } from 'react'; 
 // import ResponsiveMenu from 'react-responsive-navbar';
-import { Link } from 'react-router-dom';
+import { Link} from 'react-router-dom';
 import Logo from './img/Logo.png';
 import Navbar from 'react-bootstrap/Navbar';
 // import NavDropdown from 'react-bootstrap/NavDropdown';
@@ -10,7 +10,30 @@ import Button from 'react-bootstrap/Button';
 import '../../App.css';
 
 class Navber extends Component {
+
+  state = {
+    isAlreadyLogin : false,
+    name:""
+  }
+
+  componentDidMount = () => {
+    this.isAlreadyLogin();
+  }
+
+  isAlreadyLogin = () => {
+    console.log(
+      "remember_me and user_token",
+      localStorage.getItem("RememberMe") == "true",
+      localStorage.getItem("UserToken") != null
+    );
+    localStorage.getItem("UserToken") != null &&
+    localStorage.getItem("RememberMe") == "true"
+      ? this.setState({ isAlreadyLogin: true,name:localStorage.getItem("UserName") })
+      : this.setState({ isAlreadyLogin: false });
+  };
+
     render()  {
+      let {name,isAlreadyLogin} = this.state
   return (
 
 <div>
@@ -33,7 +56,7 @@ class Navber extends Component {
         <li><a href="#portfolio">Features</a></li>
         <li><a href="#contact">Pricing</a></li>
         <li><a href="#contact">Support</a></li>
-        <li><a href="Login">Sign in</a></li>
+  <li><a href="Login">{isAlreadyLogin?name:"Sign in"}</a></li>
         <li className="demo"><a href="#">Book A Demo</a></li>
       </ul>
     </div>
@@ -41,6 +64,7 @@ class Navber extends Component {
 </div>
 
 </div>
+
 
 
   );

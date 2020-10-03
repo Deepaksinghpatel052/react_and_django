@@ -52,7 +52,7 @@ li.searchtype {
   border-radius: 10px;
   height: 53px;
   font-size: 18px;
-  background: url("./images/searchicon.jpg") no-repeat left center;
+  background: url(./images/searchicon.jpg) no-repeat left center;
   outline: none;
 }
 ul.rightmenu-top.nav.navbar-nav.navbar-right {
@@ -710,6 +710,24 @@ img{max-width: 100%;}
 .action a:hover {
   background: #1c75f9;
 }
+
+.action button {
+  background: #025de4;
+  border: 0px;
+  color: #fff;
+  padding: 15px;
+  width: 100%;
+  border-radius: 5px;
+  font-size: 18px;
+  font-weight: 500;
+  display: block;
+  text-decoration: none;
+}
+
+.action button:hover {
+  background: #1c75f9;
+}
+
 .address {
   white-space: nowrap;
   overflow: hidden;
@@ -957,6 +975,12 @@ img{max-width: 100%;}
 .box-space {
   padding: 15px;
   border-bottom: 1px solid #f0f0f0;
+}
+
+.box-space2 {
+  padding: 10px;
+  border-bottom: 1px solid #f0f0f0;
+  align-content: center;
 }
 .report_btn {
   display: inline-block;
@@ -2137,6 +2161,35 @@ h2.analytics_btnx {
 
 .parsent .dropdown-menu li:last-child {
   border-bottom: 0px;
+}
+
+table.analytics-whice th {
+  padding: 24px 12px;
+  border-bottom: 1px solid #f0f0f0;
+  border-right: 1px solid #f0f0f0;
+  font-size: 16px;
+  font-weight: 600;
+  position: relative;
+  padding-right: 30px;
+}
+
+table.analytics-whice td {
+  padding: 24px 12px;
+  border-bottom: 1px solid #f0f0f0;
+  border-right: 1px solid #f0f0f0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+table.analytics-whice th:after {
+  position: absolute;
+  bottom: 20px;
+  right: 15px;
+  display: block;
+  font-family: Material-Design-Iconic-Font;
+  opacity: 0.5;
+  content: '\f312';
+  color: #8f81fa;
 }
 
 table.analytics-whice.dataTable {
@@ -5048,6 +5101,15 @@ ul.socailicon {
   justify-content: space-between;
 }
 
+.reviewRating {
+  list-style: none;
+  margin: 0px;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .paymentbox ul li {
   display: inline-block;
 }
@@ -5412,11 +5474,12 @@ ul.socailicon {
 }
 .piebox {
   width: 172px;
-  height: 172px;
+  height: 245px;
   display: flex;
   align-items: center;
   margin: 5px auto;
-  background: url(./images/pie-chart.png) no-repeat center center;
+  /* background: url(./images/pie-chart.png) no-repeat center center; */
+  background: no-repeat center center;
   background-size:cover;
 }
 
@@ -5684,6 +5747,10 @@ border-color: #bfb;
 .whatsaapbox {
   background: #04e38a;
   
+}
+
+.foursquarebox {
+  background: #F66343;
 }
 
 

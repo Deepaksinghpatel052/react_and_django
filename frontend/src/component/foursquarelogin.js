@@ -48,8 +48,8 @@ class FourSquareLogin extends Component {
       headers: { Authorization: "Token " + localStorage.getItem("UserToken") }
     };
 
-    const fourUrl = this.state.url.split("/")[5];
-    localStorage.setItem("fourUrl", fourUrl);
+    // const fourUrl = this.state.url.split("/")[5];
+    // localStorage.setItem("fourUrl", fourUrl);
 
     const data = {
       location_id: localStorage.getItem("locationId"),
@@ -61,20 +61,39 @@ class FourSquareLogin extends Component {
       Connect_status: "Connect",
       Other_info: "{'URL':" + this.state.url + ",'data':''}"
     };
-    
 
-    Axios.post(
-      "https://cors-anywhere.herokuapp.com/http://203.190.153.20:8000/social-platforms/add-account",
-      data,
-      DjangoConfig
+    Axios.get(
+      "https://cors-anywhere.herokuapp.com/https://api.foursquare.com/v2/venues/" +
+        this.state.url.split("/")[5] +
+        "?client_id=TEUSFAUY42IR0HGTPSWO1GFLC5WHX3PIBKVICAQRZQA0MTD1&client_secret=CYBQFK0YRBPFE54NARAEJCG2NLBARIU2OOIJNE0AZOHWZTXU&v=20180323"
     )
-      .then(resp => {
-        console.log(resp);
-        this.setState({ isUrl: true, loading: false });
+      .then(res => {
+        if (res.data.response.venue) {
+          Axios.post(
+            "https://dashify.biz/social-platforms/add-account",
+            data,
+            DjangoConfig
+          )
+            .then(resp => {
+              console.log(resp);
+              this.setState({ isUrl: true, loading: false });
+            })
+            .catch(resp => {
+              alert("Invalid username or password");
+              console.log(resp);
+              this.setState({
+                wrong: "Invalid or Not authorised",
+                loading: false
+              });
+            });
+        } else {
+          alert("Invalid username or password");
+          this.setState({ loading: false });
+        }
       })
-      .catch(resp => {
-        console.log(resp);
-        this.setState({ wrong: "Invalid or Not authorised", loading: false });
+      .catch(res => {
+        alert("Invalid username or password");
+        this.setState({ loading: false });
       });
   };
 
@@ -94,7 +113,7 @@ class FourSquareLogin extends Component {
     return (
       <div>
         <div className="foursquer-logo">
-          <img src={require("../images/foursquare-logo.png")} alt="" />
+          <img src={require("../images/foursquare.png")} alt="" />
         </div>
         <div className="login_form">
           <form onSubmit={this.onSubmit}>
@@ -117,7 +136,7 @@ class FourSquareLogin extends Component {
                   type="text"
                   id="url"
                   value={this.state.url}
-                  placeholder="https://foursquare.com/v/your-business-name/your-business-id"
+                  placeholder="https://foursquare.com/v/mudspot/3fd66200f964a520c4f11ee3"
                   onChange={e => this.setState({ url: e.target.value })}
                 />
                 <div style={{ color: "red" }}>{this.state.url_error}</div>

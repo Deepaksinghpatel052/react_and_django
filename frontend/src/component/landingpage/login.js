@@ -34,7 +34,7 @@ class Login extends React.Component {
       };
 
       Axios.post(
-        "https://cors-anywhere.herokuapp.com/http://203.190.153.20:8000/account/account-activate",
+        "https://dashify.biz/account/account-activate",
         data
       )
         .then(res => {
@@ -99,7 +99,8 @@ class Login extends React.Component {
       this.setState({ loading: true });
 
       Axios.post(
-        "https://cors-anywhere.herokuapp.com/http://203.190.153.20:8000/account/login",
+        // "https://cors-anywhere.herokuapp.com/http://18.216.54.114/account/login"
+        "https://dashify.biz/account/login",
         data
       )
         .then(async res => {
@@ -107,6 +108,7 @@ class Login extends React.Component {
           await localStorage.setItem("RememberMe", this.state.RememberMe);
           await localStorage.setItem("UserToken", res.data.Token);
           await localStorage.setItem("UserId", res.data.user_info[0].id);
+          await localStorage.setItem("UserEmail", this.state.Email);
           await localStorage.setItem(
             "UserName",
             res.data.user_info[0].first_name +
@@ -219,17 +221,16 @@ class Login extends React.Component {
                     <div className="checkbox-text">
                       <ul>
                         <li>
-                          <label>
-                            <input
-                              type="checkbox"
-                              onClick={() =>
-                                this.setState({
-                                  RememberMe: !this.state.RememberMe
-                                })
-                              }
-                            />
-                            <span></span> Remember Me{" "}
-                          </label>
+                          {/* <label> */}
+                          <input
+                            type="checkbox"
+                            onClick={() =>
+                              this.setState({
+                                RememberMe: !this.state.RememberMe
+                              })
+                            }
+                          />
+                          <span></span> Remember Me {/* </label> */}
                         </li>
                         <li className="for-color">
                           <Link to="Forgot">Forgot Password ? </Link>

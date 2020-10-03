@@ -14,7 +14,7 @@ import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-STATIC_DIR = os.path.join(BASE_DIR, 'static')
+STATIC_DIR = os.path.join(BASE_DIR, 'static_data')
 MEDIA_DIR = os.path.join(BASE_DIR, 'media')
 TEMPLATES_DIR = os.path.join(BASE_DIR,'templates')
 # Quick-start development settings - unsuitable for production
@@ -25,6 +25,7 @@ SECRET_KEY = '#n0q%bb38!(6dym(bp)tb43d=)f^8kf@4472)$7zo)elmyxove'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+# DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -45,8 +46,16 @@ INSTALLED_APPS = [
     'manage_locations',
     'manage_dropdown_value',
     'social_media_platforms',
+    'manage_voice_faqs',
+    'manage_campus',
+    'queryes',
     'six',
     'reviews',
+    'manage_bloges',
+    'manage_faqs',
+    'manage_jobs',
+    'manage_pricing',
+    'manage_orders_and_payments',
 ]
 
 
@@ -164,9 +173,9 @@ STATICFILES_DIRS = (
 )
 
 
-BASE_URL = 'http://digimonk.co/:8000/'
+BASE_URL = 'https://dashify.biz/'
 
-BASE_URL_OTHER_SITE = 'http://digimonk.co:8000/'
+BASE_URL_OTHER_SITE = 'https://dashify.biz/'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -176,5 +185,5 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'mohit.chack@digimonk.in'
-EMAIL_HOST_PASSWORD = 'mohit@digimonk'
+EMAIL_HOST_USER = 'deepakpatel@digimonk.in'
+EMAIL_HOST_PASSWORD = 'Deepak@123'

@@ -8,6 +8,7 @@ const DjangoConfig = {
 
 export default class ViewLocations extends Component {
   state = {
+    loader: true,
     AllLocations: [],
     currentPage: 1,
     LocationsPerPage: 3
@@ -21,7 +22,7 @@ export default class ViewLocations extends Component {
       user_id: localStorage.getItem("UserId")
     };
     Axios.post(
-      "https://cors-anywhere.herokuapp.com/http://203.190.153.20:8000/locations/get-all-locations",
+      "https://dashify.biz/locations/get-all-locations",
       data,
       DjangoConfig1
     )
@@ -29,10 +30,11 @@ export default class ViewLocations extends Component {
         console.log(res);
         console.log(res.data.all_location);
 
-        this.setState({ AllLocations: res.data.all_location });
+        this.setState({ AllLocations: res.data.all_location, loader: false });
       })
       .catch(res => {
-        console.log("error in LocationManager");
+        console.log("error in LocationManager", res);
+        this.setState({ loader: false });
       });
   }
 
@@ -65,7 +67,15 @@ export default class ViewLocations extends Component {
           <div className="row d-flex">
             <div className="col-md-3">
               <div className="authordata ">
-                <img src={loc.Business_Logo} height="100" width="100" />
+                <img
+                  src={
+                    loc.Business_Logo
+                      ? loc.Business_Logo
+                      : require("../images/Logo2.png")
+                  }
+                  height="100"
+                  width="100"
+                />
                 <div className="authordatatext">
                   <h4>{loc.Location_name}</h4>
                 </div>
@@ -117,106 +127,121 @@ export default class ViewLocations extends Component {
 
     return (
       <div>
-        {/* <div className="content-page"> */}
+        {this.state.loader ? (
+          <div className="rightside_title">
+            <Spinner />
+          </div>
+        ) : (
+          <div>
+            {/* <div className="content-page"> */}
 
-        <div className="rightside_title">
-          <h1>Location Manager</h1>
-        </div>
+            <div className="rightside_title">
+              <h1>Location Manager</h1>
+            </div>
 
-        <div className="tablediv">
-          <div className="border-bottom">
-            <div className="dataview nametop">
-              <div className="titledivb">
-                <div className="row">
-                  <div className="col-md-3">
-                    <div className="company-name text-left">Company Name</div>
-                  </div>
-                  <div className="col-md-3">
-                    <div className="company-name text-center">Address</div>
-                  </div>
-                  <div className="col-md-3">
-                    <div className="company-name text-center">Phone Number</div>
-                  </div>
-                  <div className="col-md-3">
-                    <div className="company-name text-center">Action</div>
+            <div className="tablediv">
+              <div className="border-bottom">
+                <div className="dataview nametop">
+                  <div className="titledivb">
+                    <div className="row">
+                      <div className="col-md-3">
+                        <div className="company-name text-left">
+                          Company Name
+                        </div>
+                      </div>
+                      <div className="col-md-3">
+                        <div className="company-name text-center">Address</div>
+                      </div>
+                      <div className="col-md-3">
+                        <div className="company-name text-center">
+                          Phone Number
+                        </div>
+                      </div>
+                      <div className="col-md-3">
+                        <div className="company-name text-center">Action</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
 
-          {this.state.AllLocations.length == 0 ? (
-            <Spinner />
-          ) : (
-            <div>
-              {renderLocations}
-              <div className="pagination-main">
-                <div className="pagination">
-                  <ul>
-                    {/* <li className="prev">
+              {this.state.AllLocations.length == 0 ? (
+                // <Spinner />
+                <h4>No Location added, Please add some loaction</h4>
+              ) : (
+                <div>
+                  {renderLocations}
+                  <div className="pagination-main">
+                    <div className="pagination">
+                      <ul>
+                        {/* <li className="prev">
                       <a href="#">Previous</a>
                     </li> */}
-                    {renderPageNumbers}
-                    {/* <li className="next">
+                        {renderPageNumbers}
+                        {/* <li className="next">
                       <a href="#">Next</a>
                     </li> */}
 
-                    <li className="itempage dropdown">
-                      <a className="dropdown-select" data-toggle="dropdown">
-                        {this.state.LocationsPerPage == 999999
-                          ? "All"
-                          : this.state.LocationsPerPage}{" "}
-                        Items/page{" "}
-                      </a>
-                      <ul className="dropdown-menu">
-                        <li
-                          onClick={() => this.setState({ LocationsPerPage: 3 })}
-                        >
-                          3 Items/page
-                        </li>
-                        <li
-                          onClick={() =>
-                            this.setState({ LocationsPerPage: 10 })
-                          }
-                        >
-                          10 Items/page
-                        </li>
-                        <li
-                          onClick={() =>
-                            this.setState({ LocationsPerPage: 20 })
-                          }
-                        >
-                          20 Items/page
-                        </li>
-                        <li
-                          onClick={() =>
-                            this.setState({ LocationsPerPage: 50 })
-                          }
-                        >
-                          50 Items/page
-                        </li>
-                        <li
-                          onClick={() =>
-                            this.setState({ LocationsPerPage: 100 })
-                          }
-                        >
-                          100 Items/page
-                        </li>
-                        <li
-                          onClick={() =>
-                            this.setState({ LocationsPerPage: 999999 })
-                          }
-                        >
-                          All Items/page
+                        <li className="itempage dropdown">
+                          <a className="dropdown-select" data-toggle="dropdown">
+                            {this.state.LocationsPerPage == 999999
+                              ? "All"
+                              : this.state.LocationsPerPage}{" "}
+                            Items/page{" "}
+                          </a>
+                          <ul className="dropdown-menu">
+                            <li
+                              onClick={() =>
+                                this.setState({ LocationsPerPage: 3 })
+                              }
+                            >
+                              3 Items/page
+                            </li>
+                            <li
+                              onClick={() =>
+                                this.setState({ LocationsPerPage: 10 })
+                              }
+                            >
+                              10 Items/page
+                            </li>
+                            <li
+                              onClick={() =>
+                                this.setState({ LocationsPerPage: 20 })
+                              }
+                            >
+                              20 Items/page
+                            </li>
+                            <li
+                              onClick={() =>
+                                this.setState({ LocationsPerPage: 50 })
+                              }
+                            >
+                              50 Items/page
+                            </li>
+                            <li
+                              onClick={() =>
+                                this.setState({ LocationsPerPage: 99 })
+                              }
+                            >
+                              99 Items/page
+                            </li>
+                            <li
+                              onClick={() =>
+                                this.setState({ LocationsPerPage: 999999 })
+                              }
+                            >
+                              All Items/page
+                            </li>
+                          </ul>
                         </li>
                       </ul>
-                    </li>
-                  </ul>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     );
   }

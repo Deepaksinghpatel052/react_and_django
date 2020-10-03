@@ -1,4 +1,4 @@
-{% load render_bundle from webpack_loader %}
+
 <!DOCTYPE html>
 <html>
   <head>
@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width" />
     <title>Dashify</title>
 
-     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css">
@@ -78,6 +78,6 @@ $(".rating label").click(function(){
   
     <div id="root">
     </div>
-      {% render_bundle 'main' %}
+      Dashify Backend Message from django
   </body>
 </html>

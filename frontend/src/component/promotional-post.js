@@ -15,8 +15,9 @@ export default class PromotionalPost extends Component {
     all_posts_report: [],
     edit_post: "",
     total_post_clicks: "-",
-
     total_post_views: "-",
+    total_post_clicks2: "-",
+    total_post_views2: "-",
     total_active_posts: "-",
     total_processing_posts: "-",
     total_rejected_posts: "-",
@@ -31,8 +32,14 @@ export default class PromotionalPost extends Component {
     date2: "",
     time1: "",
     time2: "",
+    post_promotional: false,
+    termsConditions: "",
+    redeemOnlineUrl: "",
+    couponCode: "",
 
     google_token: "",
+    locationIdGoogle: "",
+    isGoogleLoggedIn: false,
     loader: true,
     loading: false,
 
@@ -43,7 +50,8 @@ export default class PromotionalPost extends Component {
     last_month: "",
     last_3_month: "",
     last_6_month: "",
-    last_year: ""
+    last_year: "",
+    search: []
   };
 
   componentDidMount() {
@@ -72,6 +80,19 @@ export default class PromotionalPost extends Component {
       "-" +
       lastWeek.getDate();
 
+      var last2ndWeek = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate() - 14
+      );
+  
+      var last_2nd_week =
+        last2ndWeek.getFullYear() +
+        "-" +
+        (last2ndWeek.getMonth() + 1) +
+        "-" +
+        last2ndWeek.getDate();  
+
     var lastMonth = new Date(
       today.getFullYear(),
       today.getMonth(),
@@ -90,6 +111,19 @@ export default class PromotionalPost extends Component {
       today.getMonth(),
       today.getDate() - 91
     );
+
+    var last2ndMonth = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate() - 60
+    );
+
+    var last_2nd_Month =
+      last2ndMonth.getFullYear() +
+      "-" +
+      (last2ndMonth.getMonth() + 1) +
+      "-" +
+      last2ndMonth.getDate();
 
     var last_3_month =
       last3Month.getFullYear() +
@@ -124,52 +158,79 @@ export default class PromotionalPost extends Component {
       "-" +
       lastYear.getDate();
 
+      var last2ndYear = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate() - 730
+      );
+  
+      var last_2nd_year =
+        last2ndYear.getFullYear() +
+        "-" +
+        (last2ndYear.getMonth() + 1) +
+        "-" +
+        last2ndYear.getDate();
+  
+
     this.setState({
       today_date: date,
       last_week: last_week,
+      last_2nd_week: last_2nd_week,
       last_month: last_month,
+      last_2nd_Month: last_2nd_Month,
       last_3_month: last_3_month,
       last_6_month: last_6_month,
       last_year: last_year,
+      last_2nd_year: last_2nd_year,
       show_states: last_week
     });
 
     Axios.post(
-      "https://cors-anywhere.herokuapp.com/http://203.190.153.20:8000/locations/get-all-connection-of-one-location",
+      "https://dashify.biz/locations/get-all-connection-of-one-location",
       data,
       DjangoConfig
-    ).then(response => {
-      this.setState({ loader: false });
-      var googleToken;
-      response.data.data.map(l => {
-        if (l.Social_Platform.Platform == "Google") {
-          googleToken = l.Social_Platform.Token;
-          this.setState({ google_token: googleToken });
-        }
-      });
-
-      const GoogleConfig = {
-        headers: { Authorization: "Bearer " + googleToken }
-      };
-
-      if (googleToken) {
-        Axios.get(
-          "https://mybusiness.googleapis.com/v4/accounts/",
-          GoogleConfig
-        ).then(res => {
-          console.log("google account", res.data);
-          console.log("googleconfig", GoogleConfig);
-          console.log("google data", JSON.stringify(data));
-          localStorage.setItem("accountId", res.data.accounts[0].name);
-          this.google_localpost_insight();
+    )
+      .then(response => {
+        this.setState({ loader: false });
+        var googleToken;
+        response.data.data.map(l => {
+          if (l.Social_Platform.Platform == "Google") {
+            googleToken = l.Social_Platform.Token;
+            this.setState({
+              google_token: googleToken,
+              locationIdGoogle: l.Social_Platform.Other_info
+            });
+          }
         });
-      }
-    });
+
+        const GoogleConfig = {
+          headers: { Authorization: "Bearer " + googleToken }
+        };
+
+        if (googleToken) {
+          Axios.get(
+            "https://mybusiness.googleapis.com/v4/accounts/",
+            GoogleConfig
+          ).then(res => {
+            console.log("google account", res.data);
+            console.log("googleconfig", GoogleConfig);
+            console.log("google data", JSON.stringify(data));
+            localStorage.setItem("accountId", res.data.accounts[0].name);
+            this.setState({isGoogleLoggedIn: true})
+            this.google_localpost_insight();
+          });
+        }
+      })
+      .catch(res => {
+        console.log("error in promotional post", res);
+        this.setState({ loader: false });
+      });
   }
 
   submitHandler = event => {
     event.preventDefault();
 
+    this.setState({loader: true})
     const data = {
       location_id: this.props.match.params.locationId
     };
@@ -184,11 +245,15 @@ export default class PromotionalPost extends Component {
       date1,
       date2,
       time1,
-      time2
+      time2,
+      post_promotional,
+      termsConditions,
+      redeemOnlineUrl,
+      couponCode
     } = this.state;
 
     Axios.post(
-      "https://cors-anywhere.herokuapp.com/http://203.190.153.20:8000/locations/get-all-connection-of-one-location",
+      "https://dashify.biz/locations/get-all-connection-of-one-location",
       data,
       DjangoConfig
     ).then(response => {
@@ -207,47 +272,45 @@ export default class PromotionalPost extends Component {
         Axios.get(
           "https://mybusiness.googleapis.com/v4/accounts/",
           GoogleConfig
-        ).then(res => {
+        ).then(async res => {
           console.log("google account", res.data);
           console.log("googleconfig", GoogleConfig);
           console.log("google data", JSON.stringify(data));
           localStorage.setItem("accountId", res.data.accounts[0].name);
 
-          Axios.get(
-            "https://mybusiness.googleapis.com/v4/" +
-              localStorage.getItem("accountId") +
-              "/locations",
-            GoogleConfig
-          ).then(async resp => {
-            console.log("google location", resp.data);
-
-            localStorage.setItem(
-              "locationIdGoogle",
-              resp.data.locations[0].name
-            );
-
-            if (summary || sourceUrl) {
-              const google_data = await this.postData();
-              Axios.post(
-                "https://mybusiness.googleapis.com/v4/" +
-                  localStorage.getItem("locationIdGoogle") +
-                  "/localPosts",
-                google_data,
-                GoogleConfig
-              ).then(respo => {
+          if (summary || sourceUrl) {
+            const google_data = await this.postData();
+            Axios.post(
+              "https://mybusiness.googleapis.com/v4/" +
+                this.state.locationIdGoogle +
+                "/localPosts",
+              google_data,
+              GoogleConfig
+            )
+              .then(respo => {
                 console.log("google post", respo.data);
-                // this.setState({ googleReviews: respo.data });
-                // this.google_star_counting(respo.data);
+                this.componentDidMount()
+              })
+              .catch(resp => {
+                console.log("google post error", resp);
+                alert("Something went wrong");
+                this.setState({loader: false})
               });
-            }
-          });
+          } else {
+            alert("Both Image and summary field can not be empty at same time");
+            this.setState({loader: false})
+          }
         });
+      } else {
+        alert("Please connect google listing");
+        this.setState({loader: false})
       }
     });
   };
 
   editPost = event => {
     event.preventDefault();
+    this.setState({loader: true})
     const data = {
       location_id: this.props.match.params.locationId
     };
@@ -263,10 +326,14 @@ export default class PromotionalPost extends Component {
       date1,
       date2,
       time1,
-      time2
+      time2,
+      post_promotional,
+      termsConditions,
+      redeemOnlineUrl,
+      couponCode
     } = this.state;
     Axios.post(
-      "https://cors-anywhere.herokuapp.com/http://203.190.153.20:8000/locations/get-all-connection-of-one-location",
+      "https://dashify.biz/locations/get-all-connection-of-one-location",
       data,
       DjangoConfig
     ).then(async response => {
@@ -279,21 +346,37 @@ export default class PromotionalPost extends Component {
       const GoogleConfig = {
         headers: { Authorization: "Bearer " + googleToken }
       };
-      if (googleToken && (summary || sourceUrl)) {
-        const google_data = await this.postData();
-        Axios.patch(
-          "https://mybusiness.googleapis.com/v4/" +
-            edit_post.name +
-            "?updateMask=summary,callToAction,media,event",
-          google_data,
-          GoogleConfig
-        ).then(respo => {
-          console.log("edit post", respo.data);
-          // this.setState({ googleReviews: respo.data });
-          // this.google_star_counting(respo.data);
-        });
+      if (googleToken) {
+        if (summary || sourceUrl) {
+          const google_data = await this.postData();
+          Axios.patch(
+            "https://mybusiness.googleapis.com/v4/" +
+              edit_post.name +
+              "?updateMask=summary,callToAction,media,event",
+            google_data,
+            GoogleConfig
+          ).then(respo => {
+            console.log("edit post", respo.data);
+            this.componentDidMount()
+            // this.setState({ googleReviews: respo.data });
+            // this.google_star_counting(respo.data);
+          }).catch(res => {
+            this.setState({loader:false})
+            alert("post is not updated")
+          })
+        } else {
+          alert("Both Image and summary field can not be empty at same time");
+          this.setState({loader:false})
+        }
+      } else {
+        alert("Please connect google listing");
+        this.setState({loader:false})
       }
-    });
+    }).catch(res => {
+      console.log("error while updating",res)
+      this.setState({loader:false})
+      alert("Please connect google listing");
+    })
   };
 
   postData = () => {
@@ -309,349 +392,85 @@ export default class PromotionalPost extends Component {
       date1,
       date2,
       time1,
-      time2
+      time2,
+      post_promotional,
+      termsConditions,
+      redeemOnlineUrl,
+      couponCode
     } = this.state;
-    if (summary && sourceUrl) {
-      if (
-        title &&
-        date1 &&
-        date2 &&
-        time1 &&
-        time2 &&
-        actionType &&
-        url &&
-        CTA &&
-        post_event
-      ) {
-        //summary media CTA event
-        google_data = {
-          languageCode: "en-US",
-          summary,
-          event: {
-            title,
-            schedule: {
-              startDate: {
-                year: date1.split("-")[0],
-                month: date1.split("-")[1],
-                day: date1.split("-")[2]
-              },
-              startTime: {
-                hours: time1.split(":")[0],
-                minutes: time1.split(":")[1],
-                seconds: 0,
-                nanos: 0
-              },
-              endDate: {
-                year: date2.split("-")[0],
-                month: date2.split("-")[1],
-                day: date2.split("-")[2]
-              },
-              endTime: {
-                hours: time2.split(":")[0],
-                minutes: time2.split(":")[1],
-                seconds: 0,
-                nanos: 0
-              }
-            }
-          },
-          callToAction: {
-            actionType,
-            url
-          },
-          media: [
-            {
-              mediaFormat: "PHOTO",
-              sourceUrl
-            }
-          ]
-        };
-      } else if (title && date1 && date2 && time1 && time2 && post_event) {
-        //summary media event
 
-        google_data = {
-          languageCode: "en-US",
-          summary,
-          event: {
-            title,
-            schedule: {
-              startDate: {
-                year: date1.split("-")[0],
-                month: date1.split("-")[1],
-                day: date1.split("-")[2]
-              },
-              startTime: {
-                hours: time1.split(":")[0],
-                minutes: time1.split(":")[1],
-                seconds: 0,
-                nanos: 0
-              },
-              endDate: {
-                year: date2.split("-")[0],
-                month: date2.split("-")[1],
-                day: date2.split("-")[2]
-              },
-              endTime: {
-                hours: time2.split(":")[0],
-                minutes: time2.split(":")[1],
-                seconds: 0,
-                nanos: 0
-              }
-            }
-          },
-          media: [
-            {
-              mediaFormat: "PHOTO",
-              sourceUrl
-            }
-          ]
-        };
-      } else if (actionType && url && CTA) {
-        //summary media CTA
-        google_data = {
-          languageCode: "en-US",
-          summary,
-          callToAction: {
-            actionType,
-            url
-          },
-          media: [
-            {
-              mediaFormat: "PHOTO",
-              sourceUrl
-            }
-          ]
-        };
-      } else {
-        //summary media
-        google_data = {
-          languageCode: "en-US",
-          summary,
-          media: [
-            {
-              mediaFormat: "PHOTO",
-              sourceUrl
-            }
-          ]
-        };
-      }
-    } else if (summary) {
-      if (
-        title &&
-        date1 &&
-        date2 &&
-        time1 &&
-        time2 &&
-        actionType &&
-        url &&
-        CTA &&
-        post_event
-      ) {
-        //summary CTA event
-        google_data = {
-          languageCode: "en-US",
-          summary,
-          event: {
-            title,
-            schedule: {
-              startDate: {
-                year: date1.split("-")[0],
-                month: date1.split("-")[1],
-                day: date1.split("-")[2]
-              },
-              startTime: {
-                hours: time1.split(":")[0],
-                minutes: time1.split(":")[1],
-                seconds: 0,
-                nanos: 0
-              },
-              endDate: {
-                year: date2.split("-")[0],
-                month: date2.split("-")[1],
-                day: date2.split("-")[2]
-              },
-              endTime: {
-                hours: time2.split(":")[0],
-                minutes: time2.split(":")[1],
-                seconds: 0,
-                nanos: 0
-              }
-            }
-          },
-          callToAction: {
-            actionType,
-            url
-          }
-        };
-      } else if (title && date1 && date2 && time1 && time2 && post_event) {
-        //summary event
-        google_data = {
-          languageCode: "en-US",
-          summary,
-          event: {
-            title,
-            schedule: {
-              startDate: {
-                year: date1.split("-")[0],
-                month: date1.split("-")[1],
-                day: date1.split("-")[2]
-              },
-              startTime: {
-                hours: time1.split(":")[0],
-                minutes: time1.split(":")[1],
-                seconds: 0,
-                nanos: 0
-              },
-              endDate: {
-                year: date2.split("-")[0],
-                month: date2.split("-")[1],
-                day: date2.split("-")[2]
-              },
-              endTime: {
-                hours: time2.split(":")[0],
-                minutes: time2.split(":")[1],
-                seconds: 0,
-                nanos: 0
-              }
-            }
-          }
-        };
-      } else if (actionType && url && CTA) {
-        //summary CTA
+    google_data = { languageCode: "en-US" };
 
-        google_data = {
-          languageCode: "en-US",
-          summary,
-          callToAction: {
-            actionType,
-            url
-          }
-        };
-      } else {
-        //summary
-        google_data = {
-          languageCode: "en-US",
-          summary
-        };
-      }
-    } else if (sourceUrl) {
-      if (
-        title &&
-        date1 &&
-        date2 &&
-        time1 &&
-        time2 &&
-        actionType &&
-        url &&
-        CTA &&
-        post_event
-      ) {
-        //media CTA event
-        google_data = {
-          languageCode: "en-US",
-          event: {
-            title,
-            schedule: {
-              startDate: {
-                year: date1.split("-")[0],
-                month: date1.split("-")[1],
-                day: date1.split("-")[2]
-              },
-              startTime: {
-                hours: time1.split(":")[0],
-                minutes: time1.split(":")[1],
-                seconds: 0,
-                nanos: 0
-              },
-              endDate: {
-                year: date2.split("-")[0],
-                month: date2.split("-")[1],
-                day: date2.split("-")[2]
-              },
-              endTime: {
-                hours: time2.split(":")[0],
-                minutes: time2.split(":")[1],
-                seconds: 0,
-                nanos: 0
-              }
-            }
-          },
-          callToAction: {
-            actionType,
-            url
-          },
-          media: [
-            {
-              mediaFormat: "PHOTO",
-              sourceUrl
-            }
-          ]
-        };
-      } else if (title && date1 && date2 && time1 && time2 && post_event) {
-        //media event
-        google_data = {
-          languageCode: "en-US",
-          event: {
-            title,
-            schedule: {
-              startDate: {
-                year: date1.split("-")[0],
-                month: date1.split("-")[1],
-                day: date1.split("-")[2]
-              },
-              startTime: {
-                hours: time1.split(":")[0],
-                minutes: time1.split(":")[1],
-                seconds: 0,
-                nanos: 0
-              },
-              endDate: {
-                year: date2.split("-")[0],
-                month: date2.split("-")[1],
-                day: date2.split("-")[2]
-              },
-              endTime: {
-                hours: time2.split(":")[0],
-                minutes: time2.split(":")[1],
-                seconds: 0,
-                nanos: 0
-              }
-            }
-          },
-          media: [
-            {
-              mediaFormat: "PHOTO",
-              sourceUrl
-            }
-          ]
-        };
-      } else if (actionType && url && CTA) {
-        //media CTA
-        google_data = {
-          languageCode: "en-US",
-          callToAction: {
-            actionType,
-            url
-          },
-          media: [
-            {
-              mediaFormat: "PHOTO",
-              sourceUrl
-            }
-          ]
-        };
-      } else {
-        //media
-        google_data = {
-          languageCode: "en-US",
-          media: [
-            {
-              mediaFormat: "PHOTO",
-              sourceUrl
-            }
-          ]
-        };
-      }
+    if (summary) {
+      google_data = { ...google_data, summary };
     }
+
+    if (sourceUrl) {
+      google_data = {
+        ...google_data,
+        media: [
+          {
+            mediaFormat: "PHOTO",
+            sourceUrl
+          }
+        ]
+      };
+    }
+
+    if (title && date1 && date2 && time1 && time2 && post_event) {
+      google_data = {
+        ...google_data,
+        event: {
+          title,
+          schedule: {
+            startDate: {
+              year: date1.split("-")[0],
+              month: date1.split("-")[1],
+              day: date1.split("-")[2]
+            },
+            startTime: {
+              hours: time1.split(":")[0],
+              minutes: time1.split(":")[1],
+              seconds: 0,
+              nanos: 0
+            },
+            endDate: {
+              year: date2.split("-")[0],
+              month: date2.split("-")[1],
+              day: date2.split("-")[2]
+            },
+            endTime: {
+              hours: time2.split(":")[0],
+              minutes: time2.split(":")[1],
+              seconds: 0,
+              nanos: 0
+            }
+          }
+        }
+      };
+    }
+
+    if (actionType && url && CTA) {
+      google_data = {
+        ...google_data,
+        callToAction: {
+          actionType,
+          url
+        }
+      };
+    }
+
+    if (post_promotional && termsConditions && redeemOnlineUrl && couponCode) {
+      google_data = {
+        ...google_data,
+        offer: {
+          couponCode,
+          redeemOnlineUrl,
+          termsConditions
+        }
+      };
+    }
+
     console.log("post_data in function", google_data);
     return google_data;
   };
@@ -680,11 +499,13 @@ export default class PromotionalPost extends Component {
   delete_post = value => {
     // console.log("deleted", data);
 
+    this.setState({loader : true})
+
     const data = {
       location_id: this.props.match.params.locationId
     };
     Axios.post(
-      "https://cors-anywhere.herokuapp.com/http://203.190.153.20:8000/locations/get-all-connection-of-one-location",
+      "https://dashify.biz/locations/get-all-connection-of-one-location",
       data,
       DjangoConfig
     ).then(response => {
@@ -706,7 +527,14 @@ export default class PromotionalPost extends Component {
           console.log("post delete", respo.data);
           // this.setState({ googleReviews: respo.data });
           // this.google_star_counting(respo.data);
-        });
+          this.componentDidMount()
+        }).catch(res => {
+          console.log("error in deleting post",res)
+          this.setState({loader:false});
+        })
+      } else {
+        this.setState({loader:false});
+        alert("Google listing is disconnected, please connect first")
       }
     });
   };
@@ -736,18 +564,89 @@ export default class PromotionalPost extends Component {
       headers: { Authorization: "Bearer " + this.state.google_token }
     };
 
-    Axios.get(
+    let {
+      range_name,
+      last_2nd_week,
+      last_2nd_Month,
+      last_6_month,
+      last_year,
+      last_2nd_year
+    } = this.state;
+    let show_states2 = "";
+    if (range_name == "Last week") {
+      show_states2 = last_2nd_week;
+    } else if (range_name == "Last month") {
+      show_states2 = last_2nd_Month;
+    } else if (range_name == "Last 3 months") {
+      show_states2 = last_6_month;
+    } else if (range_name == "Last 6 months") {
+      show_states2 = last_year;
+    } else if (range_name == "Last year") {
+      show_states2 = last_2nd_year;
+    }
+
+    Axios.post(
       "https://mybusiness.googleapis.com/v4/" +
         localStorage.getItem("accountId") +
-        "/locations",
+        "/locations:reportInsights",
+        {
+          // locationNames: [localStorage.getItem("locationIdGoogle")],
+          locationNames: [this.state.locationIdGoogle],
+          basicRequest: {
+            metricRequests: [{ metric: "ALL" }],
+            timeRange: {
+              startTime: this.state.show_states + "T01:01:23.045123456Z",
+              endTime: this.state.today_date + "T23:59:59.045123456Z"
+            }
+          }
+        },
       GoogleConfig
-    ).then(resp => {
-      console.log("google location", resp.data);
+    ).then(respo => {
+      console.log("google location insight", respo.data);
+      const total_post_views =
+        respo.data.locationMetrics[0].metricValues[12].totalValue.value;
+      const total_post_clicks =
+        respo.data.locationMetrics[0].metricValues[13].totalValue.value;
+      this.setState({ total_post_views, total_post_clicks });
+    });
 
-      localStorage.setItem("locationIdGoogle", resp.data.locations[0].name);
+    Axios.post(
+      "https://mybusiness.googleapis.com/v4/" +
+        localStorage.getItem("accountId") +
+        "/locations:reportInsights",
+        {
+          locationNames: [this.state.locationIdGoogle],
+          basicRequest: {
+            metricRequests: [{ metric: "ALL" }],
+            timeRange: {
+              startTime: show_states2 + "T01:01:23.045123456Z",
+              endTime: this.state.show_states + "T23:59:59.045123456Z"
+            }
+          }
+        },
+      GoogleConfig
+    ).then(respo => {
+      console.log("google location insight 2", respo.data);
+      const total_post_views2 =
+        respo.data.locationMetrics[0].metricValues[12].totalValue.value;
+      const total_post_clicks2 =
+        respo.data.locationMetrics[0].metricValues[13].totalValue.value;
+      this.setState({ total_post_views2, total_post_clicks2 });
+    });
 
-      const google_data = {
-        locationNames: [localStorage.getItem("locationIdGoogle")],
+
+    Axios.get(
+      "https://mybusiness.googleapis.com/v4/" +
+        this.state.locationIdGoogle +
+        "/localPosts",
+      GoogleConfig
+    ).then(respo => {
+      console.log("google localpost data", respo.data);
+      this.posts_status(respo.data.localPosts);
+      this.setState({ all_posts: respo.data.localPosts });
+
+      const data = {
+        localPostNames: respo.data.localPosts.map(val => val.name),
         basicRequest: {
           metricRequests: [{ metric: "ALL" }],
           timeRange: {
@@ -758,76 +657,40 @@ export default class PromotionalPost extends Component {
       };
       Axios.post(
         "https://mybusiness.googleapis.com/v4/" +
-          localStorage.getItem("accountId") +
-          "/locations:reportInsights",
-        google_data,
+          this.state.locationIdGoogle +
+          "/localPosts:reportInsights",
+        data,
         GoogleConfig
       ).then(respo => {
-        console.log("google location insight", respo.data);
-        const total_post_views =
-          respo.data.locationMetrics[0].metricValues[12].totalValue.value;
-        const total_post_clicks =
-          respo.data.locationMetrics[0].metricValues[13].totalValue.value;
-        this.setState({ total_post_views, total_post_clicks });
-      });
-
-      Axios.get(
-        "https://mybusiness.googleapis.com/v4/" +
-          localStorage.getItem("locationIdGoogle") +
-          "/localPosts",
-        GoogleConfig
-      ).then(respo => {
-        console.log("google localpost data", respo.data);
-        this.posts_status(respo.data.localPosts);
-        this.setState({ all_posts: respo.data.localPosts });
-
-        const data = {
-          localPostNames: respo.data.localPosts.map(val => val.name),
-          basicRequest: {
-            metricRequests: [{ metric: "ALL" }],
-            timeRange: {
-              startTime: this.state.show_states + "T01:01:23.045123456Z",
-              endTime: this.state.today_date + "T23:59:59.045123456Z"
-            }
-          }
-        };
-        Axios.post(
-          "https://mybusiness.googleapis.com/v4/" +
-            localStorage.getItem("locationIdGoogle") +
-            "/localPosts:reportInsights",
-          data,
-          GoogleConfig
-        ).then(respo => {
-          console.log("google localpost reportInsights", respo.data);
-          // this.posts_status(respo.data.localPosts);
-          this.setState({
-            all_posts_report: respo.data.localPostMetrics,
-            loading: false
-          });
+        console.log("google localpost reportInsights", respo.data);
+        // this.posts_status(respo.data.localPosts);
+        this.setState({
+          all_posts_report: respo.data.localPostMetrics
+            ? respo.data.localPostMetrics
+            : [],
+          loading: false
         });
       });
+
     });
   };
 
-  change_states = (states, range) => e => {
+  change_states = (states, range) => async e => {
     console.log("e.target.name", states, range);
-    this.setState({ show_states: states, range_name: range });
+    await this.setState({ show_states: states, range_name: range });
     this.google_localpost_insight();
   };
 
   render() {
-    var loader;
-    if (this.state.loader) {
-      loader = <Spinner />;
-    } else {
-      loader = "";
-    }
+    
     var {
       all_posts,
       all_posts_report,
       edit_post,
       total_post_clicks,
       total_post_views,
+      total_post_clicks2,
+      total_post_views2,
       total_active_posts,
       total_processing_posts,
       total_rejected_posts,
@@ -842,13 +705,18 @@ export default class PromotionalPost extends Component {
       date2,
       time1,
       time2,
+      post_promotional,
+      termsConditions,
+      redeemOnlineUrl,
+      couponCode,
       today_date,
       last_week,
       last_month,
       last_3_month,
       last_6_month,
       last_year,
-      show_states
+      show_states,
+      isGoogleLoggedIn
     } = this.state;
 
     console.log(
@@ -862,13 +730,43 @@ export default class PromotionalPost extends Component {
       show_states
     );
 
+    let courses = [];
+
+    if (all_posts.length != 0) {
+      courses = all_posts.map(data => data.summary);
+    }
+
+    let options;
+    if (this.state.search.length) {
+      const searchPattern = new RegExp(
+        this.state.search.map(term => `(?=.*${term})`).join(""),
+        "i"
+      );
+      options = courses.filter(option => option.match(searchPattern));
+    } else {
+      options = courses;
+    }
+
+    let filtered_posts = [];
+    if (options.length != 0) {
+      options.map((data1, i) => {
+        all_posts.map((data2, j) => {
+          if (data1 == data2.summary) {
+            filtered_posts = [...filtered_posts, data2];
+          }
+        });
+      });
+    }
+
     let i = 0;
     return (
       <div>
         {/* <div className="content-page"> */}
+        
 
-        <div className="main_content">
-          <div className="rightside_title">{loader}</div>
+        {this.state.loader ? <div className="rightside_title">
+            <Spinner />
+          </div> : <div className="main_content">
           <div className="rightside_title">
             <h1>
               Promotional Post{" "}
@@ -877,7 +775,8 @@ export default class PromotionalPost extends Component {
               </form>{" "}
             </h1>
           </div>
-          <div className="mb-30">
+          {isGoogleLoggedIn ? <div>
+            <div className="mb-30">
             <div className="row">
               <div className="col-md-9">
                 <div className="analytics-whice">
@@ -966,7 +865,7 @@ export default class PromotionalPost extends Component {
                               <h2>
                                 {total_active_posts}{" "}
                                 <span>
-                                  <i className="zmdi zmdi-plus"></i>1.03%
+                                  <i className="zmdi"></i>-
                                 </span>
                               </h2>
                               <h3>Total Active post</h3>
@@ -985,9 +884,53 @@ export default class PromotionalPost extends Component {
                             <div className="promo-text">
                               <h2>
                                 {total_post_views}{" "}
-                                <span>
-                                  <i className="zmdi zmdi-plus"></i>1.03%
-                                </span>
+                                {/* <span>
+                                  <i className="zmdi zmdi-minus"></i>1.03%
+                                </span> */}
+
+
+                                {total_post_views ? (parseInt(total_post_views) -
+                                  parseInt(total_post_views2) >
+                                0 ? (
+                                  <div style={{ color: "green" }}>
+                                    <span>
+                                  <i className="zmdi zmdi-plus"></i>
+                                    {
+                                      (
+                                        ((parseInt(total_post_views) -
+                                          parseInt(total_post_views2)) *
+                                          100) /
+                                        parseInt(total_post_views2)
+                                      )
+                                        .toString()
+                                        .slice(0, 4) +
+                                      " %"}
+                                   </span>
+                                  </div>
+                                ) : parseInt(total_post_views) -
+                                parseInt(total_post_views2) <
+                              0 ? (
+                                <div style={{ color: "red" }}>
+                                  <span>
+                                <i className="zmdi zmdi-minus"></i>
+                                  {
+                                    (
+                                      ((parseInt(total_post_views) -
+                                        parseInt(total_post_views2)) *
+                                        100) /
+                                      parseInt(total_post_views2)
+                                    )
+                                      .toString()
+                                      .slice(1, 5) +
+                                    " %"}
+                                 </span>
+                                </div>
+                              ) : 
+                                  "0%"
+                                ) : (
+                                  "-"
+                                )}
+
                               </h2>
                               <h3>Total post views</h3>
                             </div>
@@ -1005,9 +948,53 @@ export default class PromotionalPost extends Component {
                             <div className="promo-text">
                               <h2>
                                 {total_post_clicks}{" "}
-                                <span>
+                                {/* <span>
                                   <i className="zmdi zmdi-plus"></i>1.03%
-                                </span>
+                                </span> */}
+
+
+                                {total_post_clicks ? (parseInt(total_post_clicks) -
+                                  parseInt(total_post_clicks2) >
+                                0 ? (
+                                  <div style={{ color: "green" }}>
+                                    <span>
+                                  <i className="zmdi zmdi-plus"></i>
+                                    {
+                                      (
+                                        ((parseInt(total_post_clicks) -
+                                          parseInt(total_post_clicks2)) *
+                                          100) /
+                                        parseInt(total_post_clicks2)
+                                      )
+                                        .toString()
+                                        .slice(0, 4) +
+                                      " %"}
+                                   </span>
+                                  </div>
+                                ) : parseInt(total_post_clicks) -
+                                parseInt(total_post_clicks2) <
+                              0 ? (
+                                <div style={{ color: "red" }}>
+                                  <span>
+                                <i className="zmdi zmdi-minus"></i>
+                                  {
+                                    (
+                                      ((parseInt(total_post_clicks) -
+                                        parseInt(total_post_clicks2)) *
+                                        100) /
+                                      parseInt(total_post_clicks2)
+                                    )
+                                      .toString()
+                                      .slice(1, 4) +
+                                    " %"}
+                                 </span>
+                                </div>
+                              ) : 
+                                  "0%"
+                                ) : (
+                                  "-"
+                                )}
+
                               </h2>
                               <h3>Total post clicks</h3>
                             </div>
@@ -1023,7 +1010,7 @@ export default class PromotionalPost extends Component {
                               />
                             </div>
                             <div className="promo-text">
-                              <h2>0 </h2>
+                              <h2>- </h2>
                               <h3>Scheduled Posts</h3>
                             </div>
                           </div>
@@ -1038,7 +1025,7 @@ export default class PromotionalPost extends Component {
                               />
                             </div>
                             <div className="promo-text">
-                              <h2>0 </h2>
+                              <h2>- </h2>
                               <h3>Expired Posts</h3>
                             </div>
                           </div>
@@ -1068,6 +1055,9 @@ export default class PromotionalPost extends Component {
                   <th>
                     <input
                       type="text"
+                      onChange={e =>
+                        this.setState({ search: e.target.value.split(" ") })
+                      }
                       placeholder="Search Google Posts"
                       className="google_post"
                     />
@@ -1078,6 +1068,7 @@ export default class PromotionalPost extends Component {
                 </tr>
               </thead>
               {this.state.loading ? (
+                <div className="promotional-box">
                 <div style={{ textAlign: "right" }}>
                   <Loader2
                     type="Oval"
@@ -1087,10 +1078,11 @@ export default class PromotionalPost extends Component {
                     // timeout={3000} //3 secs
                   />
                 </div>
+                </div>
               ) : (
                 <tbody>
-                  {all_posts.length != 0
-                    ? all_posts.map(data => (
+                  {filtered_posts.length != 0
+                    ? filtered_posts.map((data, j) => (
                         <tr>
                           <td>
                             <div className="googlenewpost">
@@ -1248,14 +1240,20 @@ export default class PromotionalPost extends Component {
                             </div>
                           </td>
                           <td>
+                            {console.log(
+                              "all post report",
+                              all_posts_report[j]
+                            )}
                             {all_posts_report.length != 0
-                              ? all_posts_report[i].metricValues[0].totalValue
+                              ? all_posts_report[j] &&
+                                all_posts_report[j].metricValues[0].totalValue
                                   .value
                               : "N/A"}
                           </td>
                           <td>
                             {all_posts_report.length != 0
-                              ? all_posts_report[i].metricValues[1].totalValue
+                              ? all_posts_report[j] &&
+                                all_posts_report[j].metricValues[1].totalValue
                                   .value
                               : "N/A"}
                           </td>
@@ -1272,7 +1270,11 @@ export default class PromotionalPost extends Component {
               )}
             </table>
           </div>
-        </div>
+          </div> :  
+          <div className="analytics-whice">
+            <div className="box-space2"><h4>Connect Google listing</h4></div></div> }
+          
+        </div>}
 
         {/* </div> */}
 
@@ -1338,13 +1340,15 @@ export default class PromotionalPost extends Component {
                           <ul>
                             <li>
                               <a className="active">
+                                <label className="container-checkbox" style={{fontSize:"16px"}}>
                                 <input
                                   name="CTA"
                                   type="checkbox"
                                   onChange={this.checkBoxHandler}
                                 />
-                                <i className="zmdi zmdi-check-circle"></i> Add a
+                                <span className="checkmark zmdi"></span> Add a
                                 CTA
+                                </label>
                               </a>
                               {CTA ? (
                                 <div>
@@ -1415,15 +1419,18 @@ export default class PromotionalPost extends Component {
                                 ""
                               )}
                             </li>
+
                             <li>
                               <a className="active">
+                              <label className="container-checkbox" style={{fontSize:"16px"}}>
                                 <input
                                   name="post_event"
                                   type="checkbox"
                                   onChange={this.checkBoxHandler}
                                 />
-                                <i className="zmdi zmdi-check-circle"></i> Post
+                                <span className="checkmark zmdi"></span> Post
                                 an event
+                                </label>
                               </a>
                               {post_event ? (
                                 <div>
@@ -1475,16 +1482,54 @@ export default class PromotionalPost extends Component {
                                 ""
                               )}
                             </li>
+
                             <li>
-                              <a>
-                                <i className="zmdi zmdi-check-circle"></i> Make
+                              <a className="active">
+                              <label className="container-checkbox" style={{fontSize:"16px"}}>
+                                <input
+                                  name="post_promotional"
+                                  type="checkbox"
+                                  onChange={this.checkBoxHandler}
+                                />
+                                <span className="checkmark zmdi"></span>Make
                                 this post a promotional
+                                </label>
                               </a>
+                              {post_promotional ? (
+                                <div>
+                                  Coupon code:
+                                  <input
+                                    type="text"
+                                    name="couponCode"
+                                    onChange={this.changeHandler}
+                                    className="form-control"
+                                  />
+                                  Redeem Online Url:
+                                  <input
+                                    type="text"
+                                    name="redeemOnlineUrl"
+                                    onChange={this.changeHandler}
+                                    className="form-control"
+                                  />
+                                  Terms and Conditions:
+                                  <input
+                                    type="text"
+                                    name="termsConditions"
+                                    onChange={this.changeHandler}
+                                    className="form-control"
+                                  />
+                                </div>
+                              ) : (
+                                ""
+                              )}
                             </li>
+
                             <li>
                               <a>
-                                <i className="zmdi zmdi-check-circle"></i>{" "}
-                                Report this post after expairy
+                              <label className="container-checkbox" style={{fontSize:"16px"}}>
+                              <span className="checkmark zmdi"></span>
+                                Report this post after expiry
+                                </label>
                               </a>
                             </li>
                           </ul>
@@ -1744,15 +1789,51 @@ export default class PromotionalPost extends Component {
                               )}
                             </li>
                             <li>
-                              <a>
-                                <i className="zmdi zmdi-check-circle"></i> Make
+                              <a className="active">
+                                <input
+                                  name="post_promotional"
+                                  type="checkbox"
+                                  onChange={this.checkBoxHandler}
+                                  checked={post_promotional}
+                                />
+                                <i className="zmdi zmdi-check-circle"></i>Make
                                 this post a promotional
                               </a>
+                              {post_promotional ? (
+                                <div>
+                                  Coupon code:
+                                  <input
+                                    type="text"
+                                    name="couponCode"
+                                    onChange={this.changeHandler}
+                                    className="form-control"
+                                    value={couponCode}
+                                  />
+                                  Redeem Online Url:
+                                  <input
+                                    type="text"
+                                    name="redeemOnlineUrl"
+                                    onChange={this.changeHandler}
+                                    className="form-control"
+                                    value={redeemOnlineUrl}
+                                  />
+                                  Terms and Conditions:
+                                  <input
+                                    type="text"
+                                    name="termsConditions"
+                                    onChange={this.changeHandler}
+                                    className="form-control"
+                                    value={termsConditions}
+                                  />
+                                </div>
+                              ) : (
+                                ""
+                              )}
                             </li>
                             <li>
                               <a>
                                 <i className="zmdi zmdi-check-circle"></i>{" "}
-                                Report this post after expairy
+                                Report this post after expiiry
                               </a>
                             </li>
                           </ul>

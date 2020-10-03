@@ -62,18 +62,38 @@ class CitySearchLogin extends Component {
       Other_info: "{'URL':" + this.state.url + ",'data':''}"
     };
 
-    Axios.post(
-      "https://cors-anywhere.herokuapp.com/http://203.190.153.20:8000/social-platforms/add-account",
-      data,
-      DjangoConfig
+    Axios.get(
+      "https://cors-anywhere.herokuapp.com/https://api.citygridmedia.com/content/reviews/v2/search/where?listing_id=" +
+        this.state.url.split("/")[4] +
+        "&publisher=test"
     )
-      .then(resp => {
-        console.log("citysearch resp", resp);
-        this.setState({ isUrl: true, loading: false });
+      .then(res => {
+        if (res.data) {
+          Axios.post(
+            "https://dashify.biz/social-platforms/add-account",
+            data,
+            DjangoConfig
+          )
+            .then(resp => {
+              console.log("citysearch resp", resp);
+              this.setState({ isUrl: true, loading: false });
+            })
+            .catch(resp => {
+              alert("Invalid username or password");
+              console.log("citysearch resp", resp);
+              this.setState({
+                wrong: "Invalid or Not authorised",
+                loading: false
+              });
+            });
+        } else {
+          alert("Invalid username or password");
+          this.setState({ loading: false });
+        }
       })
-      .catch(resp => {
-        console.log("citysearch resp", resp);
-        this.setState({ wrong: "Invalid or Not authorised", loading: false });
+      .catch(res => {
+        alert("Invalid username or password");
+        this.setState({ loading: false });
       });
   };
 
@@ -93,7 +113,7 @@ class CitySearchLogin extends Component {
     return (
       <div>
         <div className="foursquer-logo">
-          <img src={require("../images/citysearch.png")} alt="citysearch" />
+          <img src={require("../images/citysearch.jpg")} alt="citysearch" />
         </div>
         <div className="login_form">
           <form onSubmit={this.onSubmit}>

@@ -268,7 +268,7 @@ export default class AddLocation extends Component {
     console.log("data", data);
 
     Axios.post(
-      `/locations/add-location`,
+      "https://dashify.biz/locations/add-location",
       data,
       DjangoConfig
     )
@@ -565,7 +565,7 @@ export default class AddLocation extends Component {
   _loadBusinessCategories = () => {
     this.setState({ loadBusinessCategories: true });
     Axios.get(
-      "https://cors-anywhere.herokuapp.com/http://203.190.153.20:8000/dropdown-values/business-categoryes",
+      "https://dashify.biz/dropdown-values/business-categoryes",
       DjangoConfig
     )
       .then(res => {
@@ -582,7 +582,7 @@ export default class AddLocation extends Component {
   _loadCountryCategories = () => {
     this.setState({ loadCountryCategories: true });
     Axios.get(
-      "https://cors-anywhere.herokuapp.com/http://203.190.153.20:8000/dropdown-values/counrty",
+      "https://dashify.biz/dropdown-values/counrty",
       DjangoConfig
     )
       .then(res => {
@@ -599,7 +599,7 @@ export default class AddLocation extends Component {
   _loadStateCategories = () => {
     this.setState({ loadStateCategories: true });
     Axios.get(
-      "https://cors-anywhere.herokuapp.com/http://203.190.153.20:8000/dropdown-values/states",
+      "https://dashify.biz/dropdown-values/states",
       DjangoConfig
     )
       .then(res => {
@@ -621,7 +621,7 @@ export default class AddLocation extends Component {
 
   render() {
     if (this.state.isSuccess) {
-      return <Redirect to="/dashboard" />;
+      return <Redirect to="/" />;
     }
     let {
       businessCategories,

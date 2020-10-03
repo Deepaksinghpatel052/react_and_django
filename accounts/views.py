@@ -95,6 +95,8 @@ def send_varification_link(user_id,yourname,user_email_set):
 
 
 
+
+
 # ======================================Forgate password send link start=====================================================
 
 class GetLinkOfForgetPassword(APIView):
@@ -205,4 +207,16 @@ class LoginUserInfoView(APIView):
             raise exceptions.ValidationError(message)    
         return Response({"user_info":user_data},status=200)    
 
+
+
+class GgetAllUser(APIView):
+
+    def get(self,request):
+        user_data = []
+        if User.objects.all().exists():
+            get_Dfuser_ins = User.objects.all().order_by('username')
+            if get_Dfuser_ins:
+                for item in get_Dfuser_ins:
+                    user_data.append(item.username)
+        return Response({"user_info":user_data},status=200)
 

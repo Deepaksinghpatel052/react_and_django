@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@react-pdf/renderer": "^2.0.0-beta.6",
     "autoprefixer": "7.1.2",
     "axios": "^0.19.2",
     "babel-core": "6.25.0",
@@ -39,6 +40,7 @@
     "react-facebook-login": "^4.1.1",
     "react-google-charts": "^3.0.15",
     "react-google-login": "^5.1.20",
+    "react-https-redirect": "^1.1.0",
     "react-images-upload": "^1.2.7",
     "react-rating": "^2.0.5",
     "react-redux": "^5.0.7",
@@ -56,6 +58,7 @@
   },
   "scripts": {
     "start": "node scripts/start.js",
+    
     "build": "node scripts/build.js",
     "test": "node scripts/test.js --env=jsdom"
   },

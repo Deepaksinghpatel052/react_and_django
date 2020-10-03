@@ -78,14 +78,13 @@ class AccountActivateSerializers(serializers.Serializer):
 class RegistrationSerializers(serializers.ModelSerializer):
     first_name = serializers.CharField(style={"inpupt_type":"text"},write_only=True)
     last_name = serializers.CharField(style={"inpupt_type":"text"},write_only=True)
-    Business_name = serializers.CharField(style={"inpupt_type":"text"},write_only=True)
-    Address = serializers.CharField(style={"inpupt_type":"text"},write_only=True,required=False,allow_blank=True)
-    City = serializers.CharField(style={"inpupt_type":"text"},write_only=True)
-    State = serializers.CharField(style={"inpupt_type":"email"},write_only=True)
+    Company_name = serializers.CharField(style={"inpupt_type":"text"},write_only=True)
+    Country = serializers.CharField(style={"inpupt_type":"text"},write_only=True)
+    Phone = serializers.CharField(style={"inpupt_type":"number"},write_only=True)
     Zip = serializers.CharField(style={"inpupt_type":"email"},write_only=True)
     class Meta:
         model  = User
-        fields = ['first_name','last_name','username','password','Business_name','Address','City','State','Zip']
+        fields = ['first_name','last_name','username','password','Company_name','Country','Phone','Zip']
         eextra_kwargs = {
             'password':{'write_only':True}
         }
@@ -108,11 +107,10 @@ class RegistrationSerializers(serializers.ModelSerializer):
             user = Userset,
             first_name = self.validated_data['first_name'],
             last_name = self.validated_data['last_name'],
-            Business_name = self.validated_data['Business_name'],
-            Address = self.validated_data['Address'],
-            City = self.validated_data['City'],
-            State = self.validated_data['State'],
-            Zip = self.validated_data['Zip'],
+            Company_name = self.validated_data['Company_name'],
+            Country = self.validated_data['Country'],
+            Phone = self.validated_data['Phone'],
+            Zip = self.validated_data['Zip']
         )
 
         DfUser_set.save()
@@ -148,7 +146,7 @@ class LoginSerializers(serializers.Serializer):
 class DfUserSerializers(serializers.ModelSerializer):
     class Meta:
         model = DfUser
-        fields = ('id', 'first_name','last_name','Business_name','Address','City','State','Zip','Last_login','user')
+        fields = ('id', 'first_name','last_name','Company_name','Country','Phone','Zip','Last_login','user')
         depth = 2
 
 # ===========================================

@@ -5,7 +5,7 @@ from import_export.admin import ImportExportModelAdmin
 
 class DfUserAdmin(ImportExportModelAdmin):
     search_fields = ['first_name']
-    list_display = ('user','first_name','Business_name','City','State','Zip','Last_login','Create_date')
-    list_filter = ('State','Create_date',)
+    list_display = ('user','first_name','Company_name','Country','Phone','Zip','Last_login','Create_date')
+    list_filter = ('Country','Create_date',)
 
 admin.site.register(DfUser,DfUserAdmin)

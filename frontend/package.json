@@ -35,7 +35,7 @@
     "react": "^16.0.0",
     "react-axios": "^2.0.3",
     "react-bootstrap": "^1.0.1",
-    "react-dev-utils": "^4.1.0",
+    "react-dev-utils": "^11.0.4",
     "react-dom": "^16.0.0",
     "react-facebook-login": "^4.1.1",
     "react-google-charts": "^3.0.15",
